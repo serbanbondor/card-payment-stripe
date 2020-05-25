@@ -48,34 +48,33 @@ app.post('/charge', (req, res) => {
       source: req.body.stripeToken,
     })
     .then((customer) =>
-      stripe.charges.create({
-        amount: price + '00',
-        description,
-        currency: 'usd',
-        customer: customer.id,
-      })
-    )
-    .then((charge) => {
-      res.render('success');
-      req.body.text = description;
-      req.body.amount = '-' + price;
-      Transactions.create(req.body)
-        .then(() => {
-          res.status(201).json({
-            success: true,
-            data: transaction,
-          });
+      stripe.charges
+        .create({
+          amount: price + '00',
+          description,
+          currency: 'usd',
+          customer: customer.id,
         })
-        .catch((e) => {
-          res.status(500).json({
-            success: false,
-            error: 'Server Error! Transaction was not added',
-          });
-        });
-    });
+        .then((charge) => {
+          res.render('success');
+          req.body.text = description;
+          req.body.amount = '-' + price;
+          Transactions.create(req.body)
+            .then(() => {
+              res.status(201).json({
+                success: true,
+                data: transaction,
+              });
+            })
+            .catch((e) => {
+              res.status(500).json({
+                success: false,
+                error: 'Server Error! Transaction was not added',
+              });
+            });
+        })
+    );
 });
-
-app.use('/api/', transactions);
 
 const port = 5050;
 
